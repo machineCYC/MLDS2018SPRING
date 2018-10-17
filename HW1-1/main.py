@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -5,7 +6,17 @@ import matplotlib.pyplot as plt
 from model.basic_model import shallow_model
 from model.basic_model import medium_model
 from model.basic_model import deep_model
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
+PROJECT_DIR_PATH = os.path.dirname(__file__)
+LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
+SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
+MODEL_TYPES = "shallow"
+
+# parameters
+batch_size = 128
+epochs = 20000
+learning_rate = 0.01
 
 # Fix random seed for reproducibility.
 seed = 416
@@ -21,45 +32,61 @@ y_train = np.sinc(5 * X_train)
 # plt.scatter(x=X_train, y=y_train, c="r", marker="o")
 # plt.show()
 
-# model parameters
-batch_size = 128
-epochs = 20000
-learning_rate = 0.01
-
-
 X_placeholder = tf.placeholder(tf.float32, [None, 1])
 Y_placeholder = tf.placeholder(tf.float32, [None, 1])
 
-Weights1 = tf.Variable(tf.random_normal([1, 200]))
-biases1 = tf.Variable(tf.zeros([1, 200]) + 0.1)
+# Weights1 = tf.Variable(tf.truncated_normal([1, 200], mean=0.0, stddev=0.01))
+# biases1 = tf.Variable(tf.zeros([1, 200]) + 0.1)
 
-Weights2 = tf.Variable(tf.random_normal([200, 1]))
-biases2 = tf.Variable(tf.zeros([1, 1]) + 0.1)
+# Weights2 = tf.Variable(tf.truncated_normal([200, 1], mean=0.0, stddev=0.01))
+# biases2 = tf.Variable(tf.zeros([1, 1]) + 0.1)
 
-dense = tf.matmul(X_placeholder, Weights1) + biases1
-dense = tf.nn.selu(dense)
-predict = tf.matmul(dense, Weights2) + biases2
-
-# predict = shallow_model(X_placeholder)
+# dense = tf.matmul(X_placeholder, Weights1) + biases1
+# dense = tf.nn.tanh(dense)
+# predict = tf.matmul(dense, Weights2) + biases2
+if MODEL_TYPES == "shallow":
+    predict = shallow_model(X_placeholder)
+elif MODEL_TYPES == "medium":
+    predict = medium_model(X_placeholder)
+elif MODEL_TYPES == "deep":
+    predict = deep_model(X_placeholder)
+else:
+    print("MODEL_TYPES is wrong!!!")
 
 mse_loss = tf.reduce_mean(tf.square(predict - Y_placeholder))
 
 # train step
-train_step = tf.train.AdamOptimizer(learning_rate).minimize(mse_loss)
+train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(mse_loss)
 
 init = tf.global_variables_initializer()
-sess = tf.Session()
-sess.run(init)
 
+with tf.Session() as sess:
+    sess.run(init)
+    nbrof_batch = int(len(X_train)/batch_size)
 
-mes_loss_list = []
-for i in range(epochs):
-    batch_x, batch_y = X_train[i*batch_size: (i+1)*batch_size], y_train[i*batch_size: (i+1)*batch_size]
-    _, mse_loss_ = sess.run([train_step, mse_loss], feed_dict={X_placeholder:batch_x, Y_placeholder:batch_y})
-    W1_, b1_ = sess.run([Weights1, biases1])
-    if i %50 == 0:
-        # loss = sess.run(mse_loss, feed_dict={X_placeholder:batch_x, Y_placeholder:batch_y})
+    mes_loss_list = []
+    for e in range(epochs):
+        for i in range(nbrof_batch):
+            batch_x, batch_y = X_train[i*batch_size: (i+1)*batch_size], y_train[i*batch_size: (i+1)*batch_size]
+            _, mse_loss_, predict_ = sess.run([train_step, mse_loss, predict], feed_dict={X_placeholder:batch_x, Y_placeholder:batch_y})
+            # W1_, b1_ = sess.run([Weights1, biases1])
+            if i %50 == 0:
+                print("epochs:{}, steps:{}, loss={}".format(e, (e*nbrof_batch) + i, mse_loss_))
+                # print(np.mean(W1_))
+                # print(np.mean(b1_))
         mes_loss_list.append(mse_loss_)
-        print(mse_loss_)
-        print(np.mean(W1_))
-        print(np.mean(b1_))
+    
+    # save loss process
+    mes_loss_list = np.asarray(mes_loss_list)
+    loss_save_path = os.path.join(LOG_DIR_PATH, MODEL_TYPES, MODEL_TYPES + ".npy")
+    if not os.path.exists(os.path.dirname(loss_save_path)):
+        os.makedirs(os.path.dirname(loss_save_path))
+    np.save(loss_save_path, mes_loss_list)
+
+    # save model
+    saver = tf.train.Saver()
+    save_model_dir_path = os.path.join(SAVE_MODLE_DIR_PATH, MODEL_TYPES, MODEL_TYPES)
+    if not os.path.exists(os.path.dirname(save_model_dir_path)):
+        os.makedirs(os.path.dirname(save_model_dir_path))
+    save_path = saver.save(sess, save_model_dir_path)
+    print("Save to path: ", save_model_dir_path)
