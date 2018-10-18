@@ -13,7 +13,7 @@ from src.utils import count_model_parameters
 def main(args):
     # parameters
     batch_size = 128
-    epochs = 20000
+    epochs = 10
     learning_rate = 0.01
 
     # Fix random seed for reproducibility.
@@ -29,19 +29,10 @@ def main(args):
     # visulization target function
     # plt.scatter(x=X_train, y=y_train, c="r", marker="o")
     # plt.show()
+    with tf.name_scope("Inputs"):
+        X_placeholder = tf.placeholder(tf.float32, [None, 1])
+        Y_placeholder = tf.placeholder(tf.float32, [None, 1])
 
-    X_placeholder = tf.placeholder(tf.float32, [None, 1])
-    Y_placeholder = tf.placeholder(tf.float32, [None, 1])
-
-    # Weights1 = tf.Variable(tf.truncated_normal([1, 200], mean=0.0, stddev=0.01))
-    # biases1 = tf.Variable(tf.zeros([1, 200]) + 0.1)
-
-    # Weights2 = tf.Variable(tf.truncated_normal([200, 1], mean=0.0, stddev=0.01))
-    # biases2 = tf.Variable(tf.zeros([1, 1]) + 0.1)
-
-    # dense = tf.matmul(X_placeholder, Weights1) + biases1
-    # dense = tf.nn.tanh(dense)
-    # predict = tf.matmul(dense, Weights2) + biases2
     if args.MODEL_TYPES == "shallow":
         predict = shallow_model(X_placeholder)
     elif args.MODEL_TYPES == "medium":
@@ -51,14 +42,19 @@ def main(args):
     else:
         print("MODEL_TYPES is wrong!!!")
 
-    # mes loss
-    mse_loss = tf.reduce_mean(tf.square(predict - Y_placeholder))
+    with tf.name_scope("mean_square_error"):
+        mse_loss = tf.reduce_mean(tf.square(predict - Y_placeholder))
+        tf.summary.scalar("Loss", mse_loss) # In tensorboard event
 
-    # train step
-    train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(mse_loss)
+    with tf.name_scope("train"):
+        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(mse_loss)
 
     # train
     with tf.Session() as sess:
+        # Merge all the summaries and write them out to ./logs/Tensorboard/train/
+        merged = tf.summary.merge_all()
+        train_writer = tf.summary.FileWriter(os.path.join(args.LOG_DIR_PATH, args.MODEL_TYPES, "Tensorboard/train/"), sess.graph)
+
         sess.run(tf.global_variables_initializer())
         count_model_parameters()
         nbrof_batch = int(len(X_train)/batch_size)
@@ -67,12 +63,11 @@ def main(args):
         for e in range(epochs):
             for i in range(nbrof_batch):
                 batch_x, batch_y = X_train[i*batch_size: (i+1)*batch_size], y_train[i*batch_size: (i+1)*batch_size]
-                _, mse_loss_, predict_ = sess.run([train_step, mse_loss, predict], feed_dict={X_placeholder:batch_x, Y_placeholder:batch_y})
-                # W1_, b1_ = sess.run([Weights1, biases1])
+                _, summary, mse_loss_ = sess.run([train_step, merged, mse_loss], feed_dict={X_placeholder:batch_x, Y_placeholder:batch_y})
+                train_writer.add_summary(summary, e)
+
                 if i %50 == 0:
                     print("epochs:{}, steps:{}, loss={}".format(e, (e*nbrof_batch) + i, mse_loss_))
-                    # print(np.mean(W1_))
-                    # print(np.mean(b1_))
             mes_loss_list.append(mse_loss_)
         
         # save loss process
@@ -89,13 +84,13 @@ def main(args):
         if not os.path.exists(os.path.dirname(save_model_dir_path)):
             os.makedirs(os.path.dirname(save_model_dir_path))
         save_path = saver.save(sess, save_model_dir_path)
-        print("Save model to path: ", save_model_dir_path)
+        print("Save model to path: {}".format(os.path.dirname(save_model_dir_path)))
 
 if __name__ == "__main__":
     PROJECT_DIR_PATH = os.path.dirname(__file__)
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
-    MODEL_TYPES = "medium"
+    MODEL_TYPES = "deep"
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
