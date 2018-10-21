@@ -18,14 +18,20 @@
 
 ### Simulate a function
 
+我們嘗試了三個不同深度的模型，每一層均是 fully connection。在參數量接近的情況下，了解越深的模型可以模擬越複雜的函數，或者是說可以將函數配式的越好。模型結構如下:
+
 | model | # of layers | # of parameters |
 | --- | --- | --- |
 | shallow model | 3 | 571 |
 | medium model | 6 | 572 |
 | deep model | 9 | 571 |
 
+下圖為三個模型 training 過程中 loss 的狀況。可以觀察到 deep 模型所模擬出來的函數跟目標函數間的誤差最小。
 
 ![](image/loss.png)
+
+
+下圖為三個模型 predict 的狀況。可以觀察到 deep 模型幾乎跟目標函數相同，而 medium 模型在波峰或波谷的地方預測的狀況比較差。shallow 只能捕捉到大方向的趨勢，對於細節的部分則完全不行。
 
 ![](image/predict.png)
 
