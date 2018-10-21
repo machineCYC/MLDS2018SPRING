@@ -13,8 +13,8 @@ from src.utils import count_model_parameters
 def main(args):
     # parameters
     batch_size = 128
-    epochs = 10
-    learning_rate = 0.01
+    epochs = 20000
+    learning_rate = 0.0001
 
     # Fix random seed for reproducibility.
     seed = 416
@@ -47,7 +47,7 @@ def main(args):
         tf.summary.scalar("Loss", mse_loss) # In tensorboard event
 
     with tf.name_scope("train"):
-        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(mse_loss)
+        train_step = tf.train.AdamOptimizer(learning_rate).minimize(mse_loss)
 
     # train
     with tf.Session() as sess:
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     PROJECT_DIR_PATH = os.path.dirname(__file__)
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
-    MODEL_TYPES = "deep"
+    MODEL_TYPES = "shallow"
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

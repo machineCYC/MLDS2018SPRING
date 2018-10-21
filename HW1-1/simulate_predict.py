@@ -16,7 +16,7 @@ def main(args):
         saver = tf.train.import_meta_graph(save_model_path + ".meta")
         saver.restore(sess, tf.train.latest_checkpoint(os.path.dirname(save_model_path)))
 
-        # tensor_name = [n.name for n in tf.get_default_graph().as_graph_def().node]
+        tensor_name = [n.name for n in tf.get_default_graph().as_graph_def().node]
 
         x_placeholder = tf.get_default_graph().get_tensor_by_name(args.INPUT_PLACEHOLDER_TENSOR_NAME)
         predict = tf.get_default_graph().get_tensor_by_name(args.OUTPUT_TENSOR_NAME)
@@ -32,8 +32,8 @@ if __name__ == "__main__":
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
     MODEL_TYPES = "shallow"
-    INPUT_PLACEHOLDER_TENSOR_NAME = "Placeholder:0"
-    OUTPUT_TENSOR_NAME = "dense_1/BiasAdd:0"
+    INPUT_PLACEHOLDER_TENSOR_NAME = "Inputs/Placeholder:0"
+    OUTPUT_TENSOR_NAME = "output/BiasAdd:0"
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
