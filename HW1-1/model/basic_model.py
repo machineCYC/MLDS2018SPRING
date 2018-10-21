@@ -3,7 +3,7 @@ import tensorflow as tf
 
 def shallow_model(X_placeholder):
 
-    dense = tf.layers.dense(inputs=X_placeholder, units=200
+    dense = tf.layers.dense(inputs=X_placeholder, units=190
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
                             , activation=tf.nn.relu
                             , name="dense1")
@@ -22,7 +22,7 @@ def medium_model(X_placeholder):
                             , activation=tf.nn.relu
                             , name="dense1")
 
-    dense = tf.layers.dense(inputs=dense, units=15
+    dense = tf.layers.dense(inputs=dense, units=18
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
                             , activation=tf.nn.relu
                             , name="dense2")
@@ -32,7 +32,7 @@ def medium_model(X_placeholder):
                             , activation=tf.nn.relu
                             , name="dense3")
 
-    dense = tf.layers.dense(inputs=dense, units=10
+    dense = tf.layers.dense(inputs=dense, units=4
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
                             , activation=tf.nn.relu
                             , name="dense4")
@@ -48,35 +48,43 @@ def deep_model(X_placeholder):
 
     dense = tf.layers.dense(inputs=X_placeholder, units=5
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense1")
 
-    dense = tf.layers.dense(inputs=dense, units=5
-                            , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+    # dense = tf.layers.dense(inputs=dense, units=5
+    #                         , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
+    #                         , activation=tf.nn.relu
+    #                         , name="dense2")
 
     dense = tf.layers.dense(inputs=dense, units=10
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense2")
     
     dense = tf.layers.dense(inputs=dense, units=10
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense3")
 
     dense = tf.layers.dense(inputs=dense, units=10
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense4")
 
     dense = tf.layers.dense(inputs=dense, units=10
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense5")
     
     dense = tf.layers.dense(inputs=dense, units=10
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense6")
 
     dense = tf.layers.dense(inputs=dense, units=5
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
-                            , activation=tf.nn.relu)
+                            , activation=tf.nn.relu
+                            , name="dense7")
 
     output = tf.layers.dense(inputs=dense, units=1
                             , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
