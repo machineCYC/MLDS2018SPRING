@@ -26,8 +26,9 @@ def main(args):
     np.random.shuffle(X_train)
     y_train = np.sinc(5 * X_train)
 
-    # visulization target function
-    # plt.scatter(x=X_train, y=y_train, c="r", marker="o")
+    # # visulization target function
+    # plt.scatter(x=X_train, y=y_train, c="r", s=5, marker="o", alpha=0.1, label=r"$\mathrm{sin}(5 \pi x)/5x$")
+    # plt.legend()
     # plt.show()
     with tf.name_scope("Inputs"):
         X_placeholder = tf.placeholder(tf.float32, [None, 1])
