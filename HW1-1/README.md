@@ -38,6 +38,11 @@
 
 ### Train  on actual task
 
+| model | # of layers | # of parameters |
+| --- | --- | --- |
+| cnn shallow model | 3 | 101560 |
+| cnn medium model | 5 | 101266 |
+| cnn deep model | 7 | 101398 |
 
 # Reference
 
