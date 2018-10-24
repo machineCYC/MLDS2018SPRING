@@ -117,7 +117,7 @@ if __name__ == "__main__":
     PROJECT_DIR_PATH = os.path.dirname(__file__)
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
-    MODEL_TYPES = "cnn_shallow"
+    MODEL_TYPES = "cnn_deep"
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
