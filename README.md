@@ -4,4 +4,6 @@ This repository contains homework of Machine Learning and having it deep and str
 
 The detail of each homework is in the below.
 
-[HW1-1](https://github.com/machineCYC/2017MLSpring_Hung-yi-Lee/tree/master/HW0)
+[HW1-1](https://github.com/machineCYC/MLDS2018SPRING/tree/master/HW1-1)
+
+[HW1-2](https://github.com/machineCYC/MLDS2018SPRING/tree/master/HW1-2)
