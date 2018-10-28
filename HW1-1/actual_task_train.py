@@ -15,8 +15,8 @@ from src.utils import count_model_parameters
 def main(args):
     # parameters
     batch_size = 128
-    epochs = 50
-    learning_rate = 0.0001
+    epochs = 25
+    learning_rate = 1e-5
 
     # load data
     (X_train, y_train), (X_valid, y_valid) = mnist.load_data() # (60000, 28, 28) (10000,)
@@ -68,8 +68,8 @@ def main(args):
         count_model_parameters()
         nbrof_batch = int(len(X_train)/batch_size)
 
-        cross_entropy_list = []
-        accuracy_list = []
+        cross_entropy_epochs = []
+        accuracy_epochs = []
         for e in range(epochs):
             for i in range(nbrof_batch):
                 batch_x, batch_y = X_train[i*batch_size: (i+1)*batch_size], y_train[i*batch_size: (i+1)*batch_size]
@@ -86,23 +86,23 @@ def main(args):
 
                 if i %50 == 0:
                     print("epochs:{}, steps:{}, loss={}, accuracy={}".format(e, (e*nbrof_batch) + i, cross_entropy_, accuracy))
-            cross_entropy_list.append(cross_entropy_)
-            accuracy_list.append(accuracy)
+            cross_entropy_epochs.append(cross_entropy_)
+            accuracy_epochs.append(accuracy)
         
         # save loss process
-        cross_entropy_list = np.asarray(cross_entropy_list)
+        cross_entropy_epochs = np.asarray(cross_entropy_epochs)
         loss_save_path = os.path.join(args.LOG_DIR_PATH, args.MODEL_TYPES, args.MODEL_TYPES + "_loss.npy")
         if not os.path.exists(os.path.dirname(loss_save_path)):
             os.makedirs(os.path.dirname(loss_save_path))
-        np.save(loss_save_path, cross_entropy_list)
+        np.save(loss_save_path, cross_entropy_epochs)
         print("Loss process to path: ", loss_save_path)
 
         # save predict process
-        accuracy_list = np.asarray(accuracy_list)
+        accuracy_epochs = np.asarray(accuracy_epochs)
         accuracy_save_path = os.path.join(args.LOG_DIR_PATH, args.MODEL_TYPES, args.MODEL_TYPES + "_accuracy.npy")
         if not os.path.exists(os.path.dirname(accuracy_save_path)):
             os.makedirs(os.path.dirname(accuracy_save_path))
-        np.save(accuracy_save_path, accuracy_list)
+        np.save(accuracy_save_path, accuracy_epochs)
         print("Accuracy process to path: ", accuracy_save_path)
 
         # save model

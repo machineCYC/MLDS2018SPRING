@@ -12,7 +12,7 @@ def main(args):
 
     plt.figure()
     plt.title("Accuracy v.s Epochs")
-    plt.xlabel("# of epochs")
+    plt.xlabel("# of Epochs")
     plt.ylabel("Accuracy")
     plt.plot(np.arange(len(Y_shallow)), Y_shallow, c="red", label="shallow")
     plt.plot(np.arange(len(Y_medium)), Y_medium, c="green", label="medium")
@@ -28,7 +28,7 @@ def main(args):
 
     plt.figure()
     plt.title("Loss v.s Epochs")
-    plt.xlabel("# of epochs")
+    plt.xlabel("# of Epochs")
     plt.ylabel("Loss")
     # plt.yscale("log")
     plt.plot(np.arange(len(shallow_loss)), shallow_loss, c="red", label="shallow")
