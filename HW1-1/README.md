@@ -44,6 +44,9 @@
 | cnn medium model | 5 | 101266 |
 | cnn deep model | 7 | 101398 |
 
+![](image/cnn_accuracy.png)
+![](image/cnn_loss.png)
+
 # Reference
 
 * [原始作業說明](https://docs.google.com/presentation/d/1VllCXAZ_DCN409MpmbsDV73wopoUt4gxyo47kPC1NGQ/edit#slide=id.p3)
