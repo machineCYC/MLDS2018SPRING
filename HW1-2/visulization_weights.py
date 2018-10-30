@@ -39,7 +39,7 @@ def main(args):
         pca_x, pca_y = points_list[i].T
         plt.scatter(pca_x, pca_y, c=listColor[i], alpha=0.5, label="train_time" + str(i+1))
         for j in range(len(pca_x)):
-            plt.annotate(str(accuracy_list[i][j]), (pca_x[j]*1.05, pca_y[j]*1.05))
+            plt.annotate(str(round(accuracy_list[i][j], 2)), (pca_x[j]*1.05, pca_y[j]*1.05))
     plt.legend()
     plt.savefig(os.path.join(args.SAVE_IMAGE_DIR_PATH, "visulization_weights.png"))
     plt.clf()
