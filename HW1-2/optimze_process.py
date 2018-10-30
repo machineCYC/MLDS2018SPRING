@@ -5,46 +5,41 @@ import tensorflow as tf
 import keras.backend as K
 from keras.datasets import mnist
 
-from model.basic_model import cnn_medium_model
+from model.basic_model import dnn_medium_model
 
 
 def main(args):
     # parameters
     batch_size = 128
     epochs = 30
-    learning_rate = 1e-6
+    learning_rate = 5e-4
+    train_size_data = 2000
 
     # load data
     (X_train, y_train), (X_valid, y_valid) = mnist.load_data() # (60000, 28, 28) (10000,)
 
     if K.image_data_format() == "channels_first":
-        X_train = X_train.reshape(X_train.shape[0], 1, 28, 28)
-        X_valid = X_valid.reshape(X_valid.shape[0], 1, 28, 28)
+        X_train = X_train.reshape(X_train.shape[0], 1*28*28)
     else:
-        X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-        X_valid = X_valid.reshape(X_valid.shape[0], 28, 28, 1)
+        X_train = X_train.reshape(X_train.shape[0], 1*28*28)
 
     X_train = X_train.astype("float32") / 255.
-    X_valid = X_valid.astype("float32") / 255.
-
     y_train = tf.keras.utils.to_categorical(y_train, 10)
-    y_valid = tf.keras.utils.to_categorical(y_valid, 10)
 
     # random data order
-    random_order = np.arange(60000)
+    random_order = np.arange(len(X_train))
     np.random.shuffle(random_order)
-    X_train = X_train[random_order]
-    y_train = y_train[random_order]
+    X_train = X_train[random_order][0:train_size_data]
+    y_train = y_train[random_order][0:train_size_data]
     print("x_train shape:", X_train.shape)
     print(X_train.shape[0], "train samples")
-    print(X_valid.shape[0], "test samples")
 
     # define graph
     with tf.name_scope("Inputs"):
         X_placeholder = tf.placeholder(tf.float32, [None, 28*28*1])
         Y_placeholder = tf.placeholder(tf.float32, [None, 10])
 
-    predict = cnn_medium_model(X_placeholder)
+    predict = dnn_medium_model(X_placeholder)
 
     with tf.name_scope("Cross_entropy_loss"):
         cross_entropy = tf.reduce_mean(-tf.reduce_sum(Y_placeholder * tf.log(predict), reduction_indices=[1]))
@@ -79,7 +74,7 @@ def main(args):
 
                 train_writer.add_summary(summary, e)
 
-                if i %50 == 0:
+                if i %10 == 0:
                     print("epochs:{}, steps:{}, loss={}, accuracy={}".format(e, (e*nbrof_batch) + i, cross_entropy_, accuracy))
             
             if e % args.COLLECT_WEIGHT_INTERVAL == 0:
