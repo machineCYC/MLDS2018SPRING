@@ -41,7 +41,7 @@ def main(args):
         for j in range(len(pca_x)):
             plt.annotate(str(accuracy_list[i][j]), (pca_x[j]*1.05, pca_y[j]*1.05))
     plt.legend()
-    plt.savefig(os.path.join(args.SAVE_IMAGE_DIR_PATH, "Visualize_weights.png"))
+    plt.savefig(os.path.join(args.SAVE_IMAGE_DIR_PATH, "visulization_weights.png"))
     plt.clf()
 
 if __name__ == "__main__":
