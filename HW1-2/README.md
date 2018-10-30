@@ -9,9 +9,15 @@
 
 ## Summary 總結
 
+### Visualize the Optimization Process
 
+![](image/visulization_weights.png)
 
+### Observe Gradient Norm During Training
 
+![](image/visulization_grads.png)
+
+### What Happened When Gradient is Almost Zero
 
 
 # Reference
