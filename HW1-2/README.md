@@ -2,6 +2,11 @@
 
 ## Purpose:
 
+* Visualize the Optimization Process
+
+* Observe Gradient Norm During Training
+
+* What Happened When Gradient is Almost Zero
 
 
 ## Data 簡介

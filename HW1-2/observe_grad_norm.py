@@ -4,16 +4,16 @@ import numpy as np
 import tensorflow as tf
 import keras.backend as K
 from keras.datasets import mnist
-
+import time
 from model.basic_model import dnn_medium_model
 
 
 def main(args):
     # parameters
     batch_size = 128
-    epochs = 15
-    learning_rate = 1e-5
-    train_size_data = 10000
+    epochs = 30
+    learning_rate = 5e-4
+    train_size_data = 2000
 
     # load data
     (X_train, y_train), (X_valid, y_valid) = mnist.load_data() # (60000, 28, 28) (10000,)
@@ -25,17 +25,16 @@ def main(args):
         # X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
         X_train = X_train.reshape(X_train.shape[0], 1*28*28)
 
-    X_train = X_train[0:train_size_data].astype("float32") / 255.
-    y_train = tf.keras.utils.to_categorical(y_train[0:train_size_data], 10)
+    X_train = X_train.astype("float32") / 255.
+    y_train = tf.keras.utils.to_categorical(y_train, 10)
 
     # random data order
-    random_order = np.arange(train_size_data)
+    random_order = np.arange(len(X_train))
     np.random.shuffle(random_order)
-    X_train = X_train[random_order]
-    y_train = y_train[random_order]
+    X_train = X_train[random_order][0:train_size_data]
+    y_train = y_train[random_order][0:train_size_data]
     print("x_train shape:", X_train.shape)
     print(X_train.shape[0], "train samples")
-    print(X_valid.shape[0], "test samples")
 
     # define graph
     with tf.name_scope("Inputs"):
@@ -65,12 +64,14 @@ def main(args):
         grads_steps = []
         for e in range(epochs):
             for i in range(nbrof_batch):
+                step_start = time.time()
+
                 batch_x, batch_y = X_train[i*batch_size: (i+1)*batch_size], y_train[i*batch_size: (i+1)*batch_size]
                 feed_dict = {X_placeholder:batch_x, Y_placeholder:batch_y}
 
                 _, summary, cross_entropy_ = sess.run([train_step, merged, cross_entropy], feed_dict=feed_dict)
                 
-                y_predict_  = sess.run(predict, feed_dict=feed_dict)
+                y_predict_ = sess.run(predict, feed_dict=feed_dict)
                 correct_prediction_ = tf.equal(tf.argmax(y_predict_, 1), tf.argmax(batch_y, 1))
                 tensor_accuracy = tf.reduce_mean(tf.cast(correct_prediction_, tf.float32))
                 accuracy = sess.run(tensor_accuracy, feed_dict=feed_dict)
@@ -84,8 +85,9 @@ def main(args):
                     grads_total += grad_norm
                 grads_total = grads_total ** 0.5
 
-                if i %50 == 0:
-                    print("epochs:{}, steps:{}, loss={}, accuracy={}, grads_norm={}".format(e, (e*nbrof_batch) + i, cross_entropy_, accuracy, grads_total))
+                step_end = time.time()
+                if i %10 == 0:
+                    print("time:{} sec, epochs:{}, steps:{}, loss={}, accuracy={}, grads_norm={}".format(step_end-step_start, e, (e*nbrof_batch) + i, cross_entropy_, accuracy, grads_total))
 
                 cross_entropy_steps.append(cross_entropy_)
                 accuracy_steps.append(accuracy)
@@ -124,7 +126,7 @@ def main(args):
         print("Save model to path: {}".format(os.path.dirname(save_model_dir_path)))
 
 if __name__ == "__main__":
-    PROJECT_DIR_PATH = os.path.dirname(__file__)
+    PROJECT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
 
