@@ -26,7 +26,7 @@ def main(args):
     # plt.legend()
     # plt.show()
     mes_loss_list = []
-    minimal_ratio_list = []
+    min_ratio_list = []
     for i in range(100):
 
         tf.reset_default_graph()
@@ -86,7 +86,7 @@ def main(args):
                 eigen_values = np.append(eigen_values, (np.linalg.eigen_values(hess).reshape(-1,)))
         
             minimal_ratio = np.sum(eigen_values > 0) / len(eigen_values)
-            minimal_ratio_list.append(minimal_ratio)
+            min_ratio_list.append(minimal_ratio)
 
 
             # save loss process
@@ -98,11 +98,11 @@ def main(args):
             print("Loss process to path: ", loss_save_path)
 
             # save minimal ratio process
-            minimal_ratio_list = np.asarray(minimal_ratio_list)
+            min_ratio_list = np.asarray(min_ratio_list)
             min_ratio_save_path = os.path.join(args.LOG_DIR_PATH, "Grad_zeros", "min_ratio.npy")
             if not os.path.exists(os.path.dirname(min_ratio_save_path)):
                 os.makedirs(os.path.dirname(min_ratio_save_path))
-            np.save(min_ratio_save_path, minimal_ratio_list)
+            np.save(min_ratio_save_path, min_ratio_list)
             print("Minimal ratio process to path: ", min_ratio_save_path)
 
             # save model
@@ -114,7 +114,7 @@ def main(args):
             print("Save model to path: {}".format(os.path.dirname(save_model_dir_path)))
 
 if __name__ == "__main__":
-    PROJECT_DIR_PATH = os.path.dirname(os.path.join(__file__))
+    PROJECT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
     LOG_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "logs")
     SAVE_MODLE_DIR_PATH = os.path.join(PROJECT_DIR_PATH, "save_models")
 
