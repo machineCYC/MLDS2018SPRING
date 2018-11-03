@@ -12,7 +12,7 @@
 
 ![](image/target_model.png) 
 
-* Train on actual task:
+* Train on actual task: 參考 [Center Loss Visualization](https://github.com/machineCYC/SideProjects/tree/master/01-CenterLossVisualization) project 的說明
 
 ## Summary 總結
 
