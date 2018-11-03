@@ -12,7 +12,7 @@
 
 ![](image/target_model.png) 
 
-* Train  on actual task:
+* Train on actual task:
 
 ## Summary 總結
 
@@ -36,7 +36,9 @@
 ![](image/predict.png)
 
 
-### Train  on actual task
+### Train on actual task
+
+我們嘗試了三個不同深度的模型，每一層均是 convolution + relu，最後一層是 fully connection + softmax。在參數量接近的情況下，了解不同深度的模型在處理相同問題時的差異。模型結構如下:
 
 | model | # of layers | # of parameters |
 | --- | --- | --- |
@@ -44,8 +46,15 @@
 | cnn medium model | 5 | 101266 |
 | cnn deep model | 7 | 101398 |
 
-![](image/cnn_accuracy.png)
+下圖為三個模型 training 過程中 loss 的狀況。三個模型最後的 loss 都相當接近 0，但可以觀察到 shallow model 的 loss 還是稍微高一些。另外一點是 shallow model loss 下降的速度相對於 deep model 和 medium model 明顯來的慢。
+
 ![](image/cnn_loss.png)
+
+下圖為三個模型 training 過程中 accuracy 的狀況。模型最後的 accuracy 其實都差不多，而從 accuracy 提升的速度可以知道越深的模型順度會越快，但越深的 model 也因為參數越多，在第一個 epoch 表現也比較不理想。
+
+![](image/cnn_accuracy.png)
+
+在 Simulate a function 的任務中，可以清楚的知道越深的模型可以處理越複雜的函數。Actual task 中得知 deep model 在 loss 下降和 accuracy 上升速度是比較快的，另外 mnist 這個 dataset 是一個相對簡單的 dataset，所以越深的模型優勢不是那麼的明顯。
 
 # Reference
 
