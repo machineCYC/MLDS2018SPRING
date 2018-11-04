@@ -2,11 +2,11 @@
 
 ## Purpose:
 
-* Visualize the Optimization Process
+* Visualize the Optimization Process:
 
-* Observe Gradient Norm During Training
+* Observe Gradient Norm During Training:
 
-* What Happened When Gradient is Almost Zero
+* What Happened When Gradient is Almost Zero:
 
 
 ## Data 簡介
@@ -24,6 +24,7 @@
 
 ### What Happened When Gradient is Almost Zero
 
+![](image/min_ratio.png)
 
 # Reference
 
