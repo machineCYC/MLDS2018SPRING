@@ -1,6 +1,8 @@
 # Homework 1-2
 
-## Purpose: 本次的作業主要是透過 optimization 的過程中了解 loss、accuracy、gradients 的變化以及所找到的這個 critical point 是否為 local minimal。
+## Purpose: 
+
+本次的作業主要是透過 optimization 的過程中了解 loss、accuracy、gradients 的變化以及所找到的這個 critical point 是否為 local minimal。
 
 * Visualize the Optimization Process: 希望藉由視覺化的方式來了解訓練過程中 loss surface 和 accuracy 之間的變化
 
@@ -24,9 +26,17 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 ### Observe Gradient Norm During Training
 
+訓練過程中紀錄模型參數 gradient norm、loss 和 accuracy 的變化。此實驗隨機抓取 mnist dataset 中隨機 2000 筆資料，訓練 30 epochs。
+
+由下圖可以觀察到 loss 越來越小的過程中，gradient 越來越大，似乎跟直覺不太一樣。使用 gradient base 的方式來訓練模型，當 loss 越來越小，會認為越來越近進 local minimum ，gradients 應該也要越來越小。目前猜測是因為訓練次數不夠多，導致 loss 還不夠小，因此 gradient 還很大步伐的更新參數。
+
 ![](image/visulization_grads.png)
 
 ### What Happened When Gradient is Almost Zero
+
+本次實驗透過一個小型的神經網絡來擬和一個函數，共訓練 50 個 epochs，在模型訓練結束時再對 gradient 做最佳化，當 gradient 很接近 0 時，再對參數計算 hessian matrix，並透過 eigen value 的方式來理解 train 出來的模型是收斂到 local minimum 還是 saddle point。
+
+由下圖可以發現，當 loss 越來越小時，eigen value 大於 0 的比例越來越大，也就是越像 local minimum。比例越來越低則比較傾相 saddle point。
 
 ![](image/min_ratio.png)
 
