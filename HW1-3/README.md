@@ -16,10 +16,11 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 由下圖的 loss 和 accuracy 可以知道 model 過度的擬和訓練資料，訓練 loss 接近 0， accuracy 接近 1。但在驗證資料上面表現的就相當差。
 
+由此實驗可以清楚的知道 deep model 是擁有將所有訓練資料記下來的能力，但也因為這樣會過擬和資料。
+
 ![](image/Random_label_accuracy.png)
 
 ![](image/Random_label_loss.png)
-
 
 ### Number of parameters v.s. Generalization
 
