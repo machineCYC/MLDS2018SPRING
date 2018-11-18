@@ -28,7 +28,7 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 隨機從 mnist training datasets 中抽出 2000 筆當訓練資料。模型結構為 conv -> dense -> output 共三層，batch size 128, epoch 50, learning rate 1e-4。除此之外，訓練 10 個相同結構但 conv filter 數量為 2、4、6、8...20，dense 層神經元數量為 2、4、6、8...20。
 
-
+由下圖可以得知隨著參數的數量越來越多，模型的 loss 和 accuracy 不論在 training 還是 validation 都越來越好。另外可以觀察到當模型參數數量大於 5 萬時，loss 下降速度開始變小，而 accuracy 上升速度也變小。由此可以推測 5 萬個參數的模型已經有足夠的能力去學習這個數據。而更特別的現象則是也沒有因為模型的數量越來越多，導致 overfitting 的現象出現。
 
 <div class="center">
     <img src="image/Nbr_para_gen_loss.png" height="300px">
