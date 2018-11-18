@@ -3,6 +3,7 @@
 ## Purpose: 
 
 * Can network fit random labels?: 希望透過此實驗來瞭接 deep model 是相當有 power 的
+* Number of parameters v.s. Generalization: 在相同模型結構的前提下，觀察參數越多時 loss 和 accuracy 的變化
 
 ## Data 簡介
 
@@ -18,17 +19,28 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 由此實驗可以清楚的知道 deep model 是擁有將所有訓練資料記下來的能力，但也因為這樣會過擬和資料。
 
-![](image/Random_label_accuracy.png)
-
-![](image/Random_label_loss.png)
+<div class="center">
+    <img src="image/Random_label_accuracy.png" height="300px">
+    <img src="image/Random_label_loss.png" height="300px">
+</div>
 
 ### Number of parameters v.s. Generalization
 
-![](image/Nbr_para_gen_loss.png)
+隨機從 mnist training datasets 中抽出 2000 筆當訓練資料。模型結構為 conv -> dense -> output 共三層，batch size 128, epoch 50, learning rate 1e-4。除此之外，訓練 10 個相同結構但 conv filter 數量為 2、4、6、8...20，dense 層神經元數量為 2、4、6、8...20。
 
-![](image/Nbr_para_gen_accuracy.png)
+
+
+<div class="center">
+    <img src="image/Nbr_para_gen_loss.png" height="300px">
+    <img src="image/Nbr_para_gen_accuracy.png" height="300px">
+</div>
 
 ### Flatness v.s. Generalization - part1
+
+
+
+![](image/Flatness_vs_gen_p1_inter.png)
+
 
 ### Flatness v.s. Generalization - part2
 
