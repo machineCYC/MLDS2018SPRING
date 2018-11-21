@@ -58,3 +58,21 @@ def similar_model(X_placeholder, time):
                             , name="output")
 
     return output
+
+
+def small_model(X_placeholder):
+
+    conv = tf.layers.conv2d(inputs=X_placeholder, filters=16
+                            , kernel_size=3
+                            , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
+                            , activation=tf.nn.relu
+                            , name="conv1")
+
+    flatten = tf.layers.flatten(conv, name="flatten")
+
+    output = tf.layers.dense(inputs=flatten, units=10
+                            , kernel_initializer=tf.truncated_normal_initializer(stddev=0.01)
+                            , activation=None
+                            , name="output")
+
+    return output
