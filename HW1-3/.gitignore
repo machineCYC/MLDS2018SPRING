@@ -1,0 +1,13 @@
+__pycache__/
+*.csv
+*.jpg
+*.png
+*.h5
+*.ASUS
+*.vscode/
+*.zip
+*.gz
+*.txt
+logs/
+save_models/
+
