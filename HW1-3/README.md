@@ -44,6 +44,13 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 ### Flatness v.s. Generalization - part2
 
+<div class="center">
+    <img src="image/Flatness_vs_gen_p2_sens_acc.png" height="300px">
+    <img src="image/image/Flatness_vs_gen_p2_sens_loss.png" height="300px">
+</div>
+
 # Reference
 
 * [原始作業說明](https://docs.google.com/presentation/d/18swR-wgvVWwiOds1cUrBbouAfd3YBRUC6RLUMoiUrns/edit#slide=id.p3)
+
+* [SENSITIVITY AND GENERALIZATION IN NEURAL NETWORKS: AN EMPIRICAL STUDY(2018)](https://arxiv.org/pdf/1802.08760.pdf)
