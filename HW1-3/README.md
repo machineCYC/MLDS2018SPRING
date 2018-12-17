@@ -37,7 +37,9 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 ### Flatness v.s. Generalization - part1
 
+隨機從 mnist training datasets 中抽出 55000 筆當訓練資料。模型結構為 conv1 -> conv2 -> conv3 -> dense -> output 共五層，epoch 500、batch size 1024、64, 對應的 learning rate 為 1e-2, 1e-3。最後將兩個模型的參數取出，根據插指法得到的參數針對 test data 中前 1000 筆資料 predict。
 
+由下圖可以得知兩個不同的模型會有不同的局部解，alpha 為 0 時 batch size 1024、 learning rate 1e-2，alpha 為 1 時 batch size 64、 learning rate 1e-3。在 training 的部分可以發現小的 batch size 會有小的 loss。validation 的 loss 相對於 training 來的大，可能如老師課堂上所說，validation 的 loss 曲面會跟 training 相似，但會在某些維度上會有偏差。
 
 ![](image/Flatness_vs_gen_p1_inter.png)
 
