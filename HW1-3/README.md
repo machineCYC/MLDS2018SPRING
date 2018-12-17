@@ -48,7 +48,7 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 隨機從 mnist training datasets 中抽出 55000 筆當訓練資料。模型結構為 conv -> output 共兩層，epoch 200、learning rate 1e-2。batch size 依序為 1024, 512, 256, 128, 64, 32。
 
-由下圖可以得知，隨著 batch size 越來越大，sensitivity 越來越小，趨近於 0。也意味著模型對資料的敏感性越來越小。敏滿度越低也太表著模型不易受到資料的影響，也就是說 generalization 的能力越強。在 validation 的部分整體來看也是符合這趨勢的。
+由下圖可以得知，隨著 batch size 越來越大，sensitivity 越來越小，趨近於 0。也意味著模型對資料的敏感性越來越小。敏感度越低也太表著模型較容易受到資料偏移的影響。由下圖也可以發現 loss 的低點和 accuracy 的高點都出現在 batch size 以較小的地方。
 
 <div class="center">
     <img src="image/Flatness_vs_gen_p2_sens_acc.png" height="300px">
