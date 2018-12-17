@@ -52,7 +52,7 @@ Mnist dataset: 參考 [Center Loss Visualization project](https://github.com/mac
 
 <div class="center">
     <img src="image/Flatness_vs_gen_p2_sens_acc.png" height="300px">
-    <img src="image/image/Flatness_vs_gen_p2_sens_loss.png" height="300px">
+    <img src="image/Flatness_vs_gen_p2_sens_loss.png" height="300px">
 </div>
 
 # Reference
