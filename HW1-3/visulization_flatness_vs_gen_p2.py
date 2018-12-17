@@ -18,13 +18,13 @@ def main(args):
     plt.ylabel("Cross_entropy", color="blue")
     plt.plot(batch_size, train_loss, c="blue", label="train", linestyle="-", alpha=0.5)
     plt.plot(batch_size, valid_loss, c="blue", label="valid", linestyle="--", alpha=0.5)
-    plt.legend()
+    plt.legend(loc="upper right")
 
     ax2 = plt.gca().twinx()
     plt.xlabel("batch_size")
     plt.ylabel("Sensitivity", color="red")
     plt.plot(batch_size, sensitivity, c="red", label="sensitivity", linestyle="-", alpha=0.5)
-    plt.legend()
+    plt.legend(loc="lower right")
     plt.savefig(os.path.join(args.SAVE_IMAGE_DIR_PATH, "Flatness_vs_gen_p2_sens_loss.png"))
     plt.clf()
 
@@ -33,13 +33,13 @@ def main(args):
     plt.ylabel("Accuracy", color="blue")
     plt.plot(batch_size, train_accuracy, c="blue", label="train", linestyle="-", alpha=0.5)
     plt.plot(batch_size, valid_accuracy, c="blue", label="valid", linestyle="--", alpha=0.5)
-    plt.legend()
+    plt.legend(loc="upper right")
 
     ax2 = plt.gca().twinx()
     plt.xlabel("batch_size")
     plt.ylabel("Sensitivity", color="red")
     plt.plot(batch_size, sensitivity, c="red", label="sensitivity", linestyle="-", alpha=0.5)
-    plt.legend()
+    plt.legend(loc="lower right")
     plt.savefig(os.path.join(args.SAVE_IMAGE_DIR_PATH, "Flatness_vs_gen_p2_sens_acc.png"))
 
 
