@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument('--noise_dim', type=int, default=100, help='')
 
     parser.add_argument('--mode', type=str, default='train', help='train or infer')
+    parser.add_argument('--gpu_memory_fraction', type=float, default=0.7, help='')
 
     return parser.parse_args()
 
@@ -31,7 +32,8 @@ def main(args):
 
     model = BaseLineModel(
         args.img_width, args.img_height, args.img_channel,
-        args.batch_size, args.learning_rate, args.beta1, args.max_epoch, args.noise_dim
+        args.batch_size, args.learning_rate, args.beta1, args.max_epoch, args.noise_dim,
+        args.gpu_memory_fraction
     )
 
     if args.mode == 'train':
