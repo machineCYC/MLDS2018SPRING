@@ -24,7 +24,7 @@ class GenerateDataSet():
         real_images = []
         for _ in range(batch_size):
 
-            if self.index_in_epoch > self.image_nbr:
+            if self.index_in_epoch >= self.image_nbr:
                 random_idx = np.arange(0, self.image_nbr)
                 np.random.shuffle(random_idx)
 
