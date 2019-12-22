@@ -1,14 +1,17 @@
 import os
+import time
 import random
 import numpy as np
 import tensorflow as tf
+
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Convolution2D, MaxPooling2D, Dropout, Flatten, UpSampling2D, Reshape
 from src.data_loader import GenerateDataSet
+
 class BaseLineModel(object):
 
     def __init__(self, img_width, img_height, img_channel,
-        batch_size, learning_rate, beta1, max_epoch, noise_dim):
+        batch_size, learning_rate, beta1, max_epoch, noise_dim,
+        gpu_memory_fraction):
         self.img_width = img_width
         self.img_height = img_height
         self.img_channel = img_channel
@@ -17,10 +20,10 @@ class BaseLineModel(object):
         self.learning_rate = learning_rate
         self.beta1 = beta1
         self.noise_dim = noise_dim
+        self.gpu_memory_fraction = gpu_memory_fraction
+        self.model_file = r'D:/workspace/MLDS2018SPRING/HW3-1/log/model/'
 
     def discriminator(self, x, reuse=False):
-        # if reuse:
-        #     tf.get_variable_scope().reuse_variables()
         # x: 64*64*3
         # -->(None, 64,64,32)
         conv1 = tf.layers.conv2d(
@@ -43,9 +46,9 @@ class BaseLineModel(object):
 
         # -->(None, 1)
         dense1 = tf.layers.dense(
-            inputs=flatten, units=1, activation=tf.nn.sigmoid, name="d_dense1")
+            inputs=flatten, units=1, name="d_dense1")
 
-        return dense1
+        return dense1, tf.nn.sigmoid(dense1)
 
 
     def generator(self, x):
@@ -92,17 +95,17 @@ class BaseLineModel(object):
             fake_images = self.generator(noise)
 
         with tf.variable_scope("discriminator", reuse=tf.AUTO_REUSE):
-            fake_predicts = self.discriminator(fake_images)
-            real_predicts = self.discriminator(real_images)
+            fake_predicts_logits, fake_predicts = self.discriminator(fake_images)
+            real_predicts_logits, real_predicts = self.discriminator(real_images)
 
         with tf.variable_scope("loss", reuse=tf.AUTO_REUSE):
             # FIXME: sigmoid_cross_entropy_with_logits
             d_loss_real = tf.reduce_mean(
                 tf.nn.sigmoid_cross_entropy_with_logits(
-                    logits=real_predicts, labels=tf.ones_like(real_predicts)))
+                    logits=real_predicts_logits, labels=tf.ones_like(real_predicts)))
             d_loss_fake = tf.reduce_mean(
                 tf.nn.sigmoid_cross_entropy_with_logits(
-                    logits=fake_predicts, labels=tf.zeros_like(fake_predicts)))
+                    logits=fake_predicts_logits, labels=tf.zeros_like(fake_predicts)))
             d_loss = d_loss_real + d_loss_fake
 
             g_loss = tf.reduce_mean(
@@ -139,43 +142,67 @@ class BaseLineModel(object):
             inputs, variables, loss = self.build()
 
             with tf.variable_scope("optimizer", reuse=tf.AUTO_REUSE):
-                # FIXME:
                 d_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
                     .minimize(loss['d_loss'], var_list=variables['d_vars'])
 
                 g_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
                     .minimize(loss['g_loss'], var_list=variables['g_vars'])
 
-        real_images = GenerateDataSet(image_dir, self.img_width, self.img_height, self.img_channel)
+        data = GenerateDataSet(image_dir, self.img_width, self.img_height, self.img_channel)
 
-        init = tf.global_variables_initializer()
-
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
         with tf.Session(graph=graph,
             config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False)) as sess:
-
+            init = tf.global_variables_initializer()
             sess.run(init)
+            # self.load(sess, self.model_file)
 
             epoch = -1
+            start_time = time.time()
             while epoch < self.max_epoch:
                 real_image = data.next_batch(batch_size=self.batch_size)
                 noise = np.random.uniform(-1, 1, [self.batch_size, self.noise_dim])
 
                 sess.run(d_optimizer, feed_dict={
-                    inputs['real_image']: real_images,
+                    inputs['real_image']: real_image,
                     inputs['noise']: noise
                 })
 
                 sess.run(g_optimizer, feed_dict={
-                    inputs['real_image']: real_images,
+                    inputs['real_image']: real_image,
                     inputs['noise']: noise
                 })
+
+                if epoch != data.N_epoch:
+                    epoch = data.N_epoch
+                    # self.save(sess, self.model_file)
+
+                    used_time = time.time() - start_time
+                    start_time = time.time()
+
+                    d_loss, g_loss = sess.run(
+                        [loss['d_loss'], loss['g_loss']],
+                        feed_dict={
+                            inputs['real_image']: real_image,
+                            inputs['noise']: noise
+                        })
+
+                    print(str(epoch) + '/' + str(self.max_epoch) + ' epoch: ' +
+                        'd_loss = ' + str(d_loss) + ' ' +
+                        'g_loss = ' + str(g_loss) + ' ' +
+                        'time = ' + str(used_time) + ' secs')
 
     def infer():
         pass
 
-    def save(self):
-        pass
+    def save(self, sess, model_file):
+        if not os.path.isdir(os.path.dirname(model_file)):
+            os.mkdir(os.path.dirname(model_file))
+        saver = tf.train.Saver()
+        saver.save(sess, model_file)
+        return
 
-    def load(self):
-        pass
+    def load(self, sess, model_file):
+        if os.path.isdir(os.path.dirname(model_file)):
+            saver = tf.train.Saver()
+            saver.restore(sess, model_file)
