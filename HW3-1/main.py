@@ -2,7 +2,6 @@ import os
 import argparse
 import tensorflow as tf
 
-from src.data_loader import GenerateDataSet
 from model import BaseLineModel
 
 def parse_args():
