@@ -19,6 +19,7 @@ class GenerateDataSet():
         self.image_nbr = len(self.array_images)
         self.index_in_epoch = 0
         self.N_epoch = 0
+        self.array_images = np.array(self.array_images)
 
     def next_batch(self, batch_size):
         real_images = []
