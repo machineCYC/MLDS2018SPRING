@@ -1,11 +1,13 @@
 import os
 import time
 import random
+import scipy.misc
 import numpy as np
 import tensorflow as tf
 
 from keras.models import Sequential
 from src.data_loader import GenerateDataSet
+from src.file import check_Directory_Exists
 
 class BaseLineModel(object):
 
@@ -87,36 +89,46 @@ class BaseLineModel(object):
         return conv3
 
     def build(self):
-        real_images = tf.placeholder(tf.float32,
-            [None, self.img_width, self.img_height, self.img_channel], name='image_placeholder')
-        noise = tf.placeholder(tf.float32, [None, self.noise_dim], name='noise_placeholder')
+        graph = tf.Graph()
+        with graph.as_default():
 
-        with tf.variable_scope("generator", reuse=tf.AUTO_REUSE):
-            fake_images = self.generator(noise)
+            real_images = tf.placeholder(tf.float32,
+                [None, self.img_width, self.img_height, self.img_channel], name='image_placeholder')
+            noise = tf.placeholder(tf.float32, [None, self.noise_dim], name='noise_placeholder')
 
-        with tf.variable_scope("discriminator", reuse=tf.AUTO_REUSE):
-            fake_predicts_logits, fake_predicts = self.discriminator(fake_images)
-            real_predicts_logits, real_predicts = self.discriminator(real_images)
+            with tf.variable_scope("generator", reuse=tf.AUTO_REUSE):
+                self.fake_images = self.generator(noise)
 
-        with tf.variable_scope("loss", reuse=tf.AUTO_REUSE):
-            # FIXME: sigmoid_cross_entropy_with_logits
-            d_loss_real = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(
-                    logits=real_predicts_logits, labels=tf.ones_like(real_predicts)))
-            d_loss_fake = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(
-                    logits=fake_predicts_logits, labels=tf.zeros_like(fake_predicts)))
-            d_loss = d_loss_real + d_loss_fake
+            with tf.variable_scope("discriminator", reuse=tf.AUTO_REUSE):
+                fake_predicts_logits, fake_predicts = self.discriminator(self.fake_images)
+                real_predicts_logits, real_predicts = self.discriminator(real_images)
 
-            g_loss = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(
-                    logits=fake_predicts, labels=tf.ones_like(fake_predicts)))
+            with tf.variable_scope("loss", reuse=tf.AUTO_REUSE):
+                # FIXME: sigmoid_cross_entropy_with_logits
+                d_loss_real = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        logits=real_predicts_logits, labels=tf.ones_like(real_predicts)))
+                d_loss_fake = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        logits=fake_predicts_logits, labels=tf.zeros_like(fake_predicts)))
+                d_loss = d_loss_real + d_loss_fake
 
-        all_var = tf.trainable_variables()
-        d_vars = [var for var in all_var if 'd_' in var.name]
-        g_vars = [var for var in all_var if 'g_' in var.name]
+                g_loss = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        logits=fake_predicts, labels=tf.ones_like(fake_predicts)))
 
-        clip_D = [p.assign(tf.clip_by_value(p, -0.01, 0.01)) for p in d_vars]
+            all_var = tf.trainable_variables()
+            d_vars = [var for var in all_var if 'd_' in var.name]
+            g_vars = [var for var in all_var if 'g_' in var.name]
+
+            clip_D = [p.assign(tf.clip_by_value(p, -0.01, 0.01)) for p in d_vars]
+
+            with tf.variable_scope("optimizer", reuse=tf.AUTO_REUSE):
+                d_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
+                    .minimize(d_loss, var_list=d_vars)
+
+                g_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
+                    .minimize(g_loss, var_list=g_vars)
 
         inputs = {
             'real_image': real_images,
@@ -134,19 +146,14 @@ class BaseLineModel(object):
             'd_loss': d_loss,
         }
 
-        return inputs, variables, loss
+        optim = {
+            'g_optimizer': g_optimizer,
+            'd_optimizer': d_optimizer,
+        }
+        return inputs, variables, loss, optim, graph
 
     def train(self, image_dir):
-        graph = tf.Graph()
-        with graph.as_default():
-            inputs, variables, loss = self.build()
-
-            with tf.variable_scope("optimizer", reuse=tf.AUTO_REUSE):
-                d_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
-                    .minimize(loss['d_loss'], var_list=variables['d_vars'])
-
-                g_optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=self.beta1) \
-                    .minimize(loss['g_loss'], var_list=variables['g_vars'])
+        inputs, variables, loss, optim, graph = self.build()
 
         data = GenerateDataSet(image_dir, self.img_width, self.img_height, self.img_channel)
 
@@ -155,7 +162,6 @@ class BaseLineModel(object):
             config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False)) as sess:
             init = tf.global_variables_initializer()
             sess.run(init)
-            # self.load(sess, self.model_file)
 
             epoch = -1
             start_time = time.time()
@@ -163,19 +169,19 @@ class BaseLineModel(object):
                 real_image = data.next_batch(batch_size=self.batch_size)
                 noise = np.random.uniform(-1, 1, [self.batch_size, self.noise_dim])
 
-                sess.run(d_optimizer, feed_dict={
+                sess.run(optim['d_optimizer'], feed_dict={
                     inputs['real_image']: real_image,
                     inputs['noise']: noise
                 })
 
-                sess.run(g_optimizer, feed_dict={
+                sess.run(optim['g_optimizer'], feed_dict={
                     inputs['real_image']: real_image,
                     inputs['noise']: noise
                 })
 
                 if epoch != data.N_epoch:
                     epoch = data.N_epoch
-                    # self.save(sess, self.model_file)
+                    self.save(sess, self.model_file)
 
                     used_time = time.time() - start_time
                     start_time = time.time()
@@ -192,17 +198,35 @@ class BaseLineModel(object):
                         'g_loss = ' + str(g_loss) + ' ' +
                         'time = ' + str(used_time) + ' secs')
 
-    def infer():
-        pass
+    def infer(self):
+        sample_path = check_Directory_Exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples'))
+        generate_images = []
+
+        inputs, variables, loss, optim, graph = self.build()
+
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
+        with tf.Session(graph=graph,
+            config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False)) as sess:
+            init = tf.global_variables_initializer()
+            sess.run(init)
+            self.load(sess, self.model_file)
+
+            noise = np.random.uniform(-1, 1, [self.batch_size, self.noise_dim])
+            generate_images.append(
+                sess.run(self.fake_images, feed_dict={inputs['noise']: noise})
+            )
+
+        for i, batch_images in enumerate(generate_images, start=1):
+            for j, image in enumerate(batch_images, start=1):
+                scipy.misc.imsave(os.path.join(sample_path, 'sample_{}_{}.jpg'.format(i, j)), image)
 
     def save(self, sess, model_file):
-        if not os.path.isdir(os.path.dirname(model_file)):
-            os.mkdir(os.path.dirname(model_file))
+        model_file = check_Directory_Exists(model_file)
         saver = tf.train.Saver()
         saver.save(sess, model_file)
         return
 
     def load(self, sess, model_file):
-        if os.path.isdir(os.path.dirname(model_file)):
+        if os.path.isdir(model_file):
             saver = tf.train.Saver()
             saver.restore(sess, model_file)
